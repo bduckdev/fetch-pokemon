@@ -1,1 +1,3 @@
-# Fetching pokemon using goroutines vs without
+# fetch-pokemon
+
+fetching data from pokeapi with and without concurrency
