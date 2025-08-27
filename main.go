@@ -86,12 +86,11 @@ func fetchPokemonConcurrently(name string, ch chan<- Pokemon, wg *sync.WaitGroup
 
 func printResult(p Pokemon) {
 	flags := aic_package.DefaultFlags()
-	flags.Dimensions = []int{25, 25}
 	asciiArt, err := aic_package.Convert(p.Sprites.FrontDefault, flags)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("front sprite: %s\n", asciiArt)
+	fmt.Printf("front sprite: %v\n", asciiArt)
 	fmt.Printf("name: %s\nheight: %d\nweight: %d\n", p.Name, p.Height, p.Weight)
 }
