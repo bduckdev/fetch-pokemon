@@ -7,23 +7,28 @@ import (
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/TheZoraiz/ascii-image-converter/aic_package"
 )
 
 const API_URL string = "https://pokeapi.co/api/v2/pokemon/"
 
 type Pokemon struct {
-	Name   string `json:"name"`
-	Height int    `json:"height"`
-	Weight int    `json:"weight"`
+	Name    string `json:"name"`
+	Height  int    `json:"height"`
+	Weight  int    `json:"weight"`
+	Sprites struct {
+		FrontDefault string `json:"front_default"`
+	} `json:"sprites"`
 }
 
 func main() {
-	// non-concurrent
 	start := time.Now()
 	pokemon := []string{"vaporeon", "jolteon", "flareon", "espeon", "umbreon", "leafeon", "glaceon", "sylveon", "eevee"}
+	// non-concurrent
 	for _, name := range pokemon {
 		p := fetchPokemon(name)
-		fmt.Printf("name: %s\nheight: %d\nweight: %d\n", p.Name, p.Height, p.Weight)
+		printResult(p)
 	}
 	fmt.Println("Fetching without concurrency took ", time.Since(start))
 	// concurrent
@@ -39,8 +44,8 @@ func main() {
 		close(ch)
 	}()
 
-	for res := range ch {
-		fmt.Printf("name: %s\nheight: %d\nweight: %d\n", res.Name, res.Height, res.Weight)
+	for p := range ch {
+		printResult(p)
 	}
 	fmt.Println("Fetching with concurrency took ", time.Since(start))
 }
@@ -77,4 +82,16 @@ func fetchPokemonConcurrently(name string, ch chan<- Pokemon, wg *sync.WaitGroup
 	}
 
 	ch <- p
+}
+
+func printResult(p Pokemon) {
+	flags := aic_package.DefaultFlags()
+	flags.Dimensions = []int{25, 25}
+	asciiArt, err := aic_package.Convert(p.Sprites.FrontDefault, flags)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("front sprite: %s\n", asciiArt)
+	fmt.Printf("name: %s\nheight: %d\nweight: %d\n", p.Name, p.Height, p.Weight)
 }
